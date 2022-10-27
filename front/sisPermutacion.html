@@ -1,0 +1,262 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>CriptoMonkas</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <script type="text/javascript" language="javascript">
+        </script>
+	</head>
+    <script>
+        //const xhr = new XMLHttpRequest();
+        const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+        const url = "http://localhost:5000/perm/";
+
+        // const sendInfo = {"plaintext": "ECDBAF", "key": "2 1"}; // "ECDBAF", "5 3 4 2 1"
+        /*const encrypt = (text, key) => {
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            var cypher = '';
+            xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log(xhr.responseText);
+                cypher = xhr.responseText["ciphertext"];
+            }
+            };
+            const sendInfo = {"plaintext": text, "key": key};
+            
+            xhr.send(JSON.stringify(sendInfo));
+            console.log(cypher)
+            return cypher;
+            
+        }*/
+
+        const generateKey = ()=>{
+            let lenkey = random(3, 6);
+            const temp = [];
+            for (let i = 1; i <= lenkey; i++) {
+                temp.push(i);
+            }
+            const key = [];
+            for (let i = 1; i <= lenkey; i++) {
+                key.push(temp.splice(random(0, temp.length), 1).toString());
+            }
+            return key.join(' ');
+
+        }
+
+        const handleCypher = (mode) => {
+            if(mode == "encrypt"){
+                let text = document.getElementById("textEncrypt").value;
+                let key = document.getElementById("keyEncrypt").value;
+                if(!key){
+                    key = generateKey();
+                    document.getElementById("keyEncrypt").value = "Example: " + key
+                }
+                const sendInfo = {"plaintext": text, "key": key};
+                fetch(url + 'enc', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        document.getElementById("outputEncrypt").value = jsonResponse.ciphertext;
+                    });
+
+            } else if (mode == "decrypt") {
+                let text = document.getElementById("textDecrypt").value;
+                let key = document.getElementById("keyDecrypt").value;
+                if(!key){
+                    key = generateKey();
+                    document.getElementById("keyDecrypt").value = "Example: " + key
+                }
+                const sendInfo = {"ciphertext": text, "key": key};
+                fetch(url  + 'dec', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        document.getElementById("outputDecrypt").value = jsonResponse.plaintext;
+                    });
+            }
+        }
+        /*
+        fetch(url, {
+            method: 'POST', // or 'PUT'
+            body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+            headers:{
+                'Content-Type': 'application/json'
+            }})
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                // do something with jsonResponse
+                console.log(jsonResponse)
+            });
+            */
+    </script>
+            
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+	 <!-- Header -->
+     <header id="header">
+        <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+        <nav id="nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li>
+              <a href="#">Crpyto Sistems</a>
+              <ul>
+                <li>
+                  <a href="#"> Classic</a>
+                  <ul>
+                    <li><a href="sisShift.html">Shift</a></li>
+                    <li><a href="sisAfin.html">Affine</a></li>
+                    <li><a href="sisPermutacion.html">Permutation</a></li>
+                    <li><a href="sisSustitucion.html">Sustitution</a></li>
+                    <li><a href="sisHill.html">Hill</a></li>
+                    <li><a href="sisVigenere.html">Vigenere</a></li>
+                    <li>
+                  </ul>
+                <li> <li>
+                  <a href="#"> Block</a>
+                  <ul>
+                    <li><a href="AES.html">AES</a></li>
+                    <li><a href="T-DES.html">T-DES</a></li>
+                    <li><a href="S-DES.html">S-DES</a></li>
+                    <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                    <li>
+                  </ul>
+                <li> </a>
+                  <a href="#">Analysis</a>
+                  <ul>
+                    <li><a href="AnShift.html">Shift analysis</a></li>
+                    <li><a href="AnAfin.html">Affine analysis</a></li>
+                    <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                    <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                    <li><a href="AnHill.html">Hill analysis</a></li>
+                    <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><a href="aboutUs.html">About us</a></li>
+          </ul>
+        </nav>
+      </header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Permutation criptographic system</h2>
+							<p>Consists on dividing the word into blocks of fixed length, and shuffle around
+                                characters inside each block. This "shuffling" goes by the name of <b>permutation</b>.
+                                We represent the shuffle by a list of numbers. For example the list "3, 1, 2" tells us
+                                that the first character gets sended to the position 3, the second character gets sended
+                                to position 1 and the third character maps into position 2. Any permutation can be represented with this method.
+                            </p>
+						</header>
+
+						<!-- Content -->
+
+<div class="container">
+    <!--  -->
+    <div class="row">
+        <div class="wrapper style1">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Encrypt</h3>
+                <div class="row">
+                    <form id="myForm">
+                        <div class="row gtr-uniform gtr-50">
+                            <div class="col-6 col-12-xsmall">
+                                <input type="text" name="Text to encrypt" id="textEncrypt" value="" placeholder="Text to encrypt" style="text-transform:uppercase" />
+                            </div>
+                            <div class="col-6 col-12-xsmall">
+                                <input type="text" name="key" id="keyEncrypt" value="" placeholder="Example: 3 5 2 4 1"/>
+                            </div>
+                            <span> Please introduce the permutation separated by commas. If you don't, the system will
+                                automatically generate one.
+                            </div>
+                        </div>
+                        <div class="text-center">
+
+                            <button id="submitButtonEncrypt" type="button"
+                                    class="button primary" onclick="handleCypher('encrypt')">Encrypt                                   
+                            </button>
+
+                            <button id="ResetButton" type="reset"
+                                    class="button primary">Reset                                 
+                            </button>
+                        </div>
+                    </form>
+                    <br>
+
+                    <input type="text" id="outputEncrypt" disabled></input>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="wrapper style1">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Decrypt</h3>
+                    <div class="row">
+                        <form id="myForm">
+                            <div class="row gtr-uniform gtr-50">
+                                <div class="col-6 col-12-xsmall">
+                                    <input type="text" name="Text to encrypt" id="textDecrypt" placeholder="Text to Decrypt" style="text-transform:uppercase" />
+                                </div>
+                                <div class="col-6 col-12-xsmall">
+                                    <input type="text" name="key" id="keyDecrypt" placeholder=""/>
+                                </div>
+                                    <span> Please introduce the length of the key. If you don't, the system will
+                                    analyce the cypher and find a method of decryption.
+                                </div>
+                            </div>
+                            <div class="text-center">
+    
+                                <button id="submitButtonEncrypt" type="button"
+                                        class="button primary" onclick="handleCypher('decrypt')">Decrypt                                   
+                                </button>
+    
+                                <button id="ResetButton" type="reset"
+                                        class="button primary">Reset                                 
+                                </button>
+                            </div>
+                        </form>
+                        <br>
+
+                        <input type="text" id="outputDecrypt" disabled></input>
+                    </div>
+                </div>
+            </div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

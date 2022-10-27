@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>Shift Analisis</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <script>
+
+        const url = "http://localhost:5000/shift/atk";
+
+        const handleCypher = () => {
+          let text = document.getElementById("inputTextEncrypt").value;
+          document.getElementById("outputText").value = '';
+          const sendInfo = {"ciphertext": text, "head": '26'};
+          fetch(url, {
+              method: 'POST', // or 'PUT'
+              body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+              headers:{
+                  'Content-Type': 'application/json'
+              }})
+              .then(function(response) {
+                  return response.json();
+              })
+              .then(function(jsonResponse) {
+                  // do something with jsonResponse
+                  console.log(jsonResponse)
+                  for (let i = 0; i < jsonResponse.plaintext_attempts.length; i++) {
+                    const attempt = jsonResponse.plaintext_attempts[i][0];
+                    document.getElementById("outputText").value += attempt + ', ' + i + '\n';
+                  }
+                  
+              });
+
+        }
+    </script>
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+ <!-- Header -->
+ <header id="header">
+    <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+    <nav id="nav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li>
+          <a href="#">Crpyto Sistems</a>
+          <ul>
+            <li>
+              <a href="#"> Classic</a>
+              <ul>
+                <li><a href="sisShift.html">Shift</a></li>
+                <li><a href="sisAfin.html">Affine</a></li>
+                <li><a href="sisPermutacion.html">Permutation</a></li>
+                <li><a href="sisSustitucion.html">Sustitution</a></li>
+                <li><a href="sisHill.html">Hill</a></li>
+                <li><a href="sisVigenere.html">Vigenere</a></li>
+                <li>
+              </ul>
+            <li> <li>
+              <a href="#"> Block</a>
+              <ul>
+                <li><a href="AES.html">AES</a></li>
+                <li><a href="T-DES.html">T-DES</a></li>
+                <li><a href="S-DES.html">S-DES</a></li>
+                <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                <li>
+              </ul>
+            <li> </a>
+              <a href="#">Analysis</a>
+              <ul>
+                <li><a href="AnShift.html">Shift analysis</a></li>
+                <li><a href="AnAfin.html">Affine analysis</a></li>
+                <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                <li><a href="AnHill.html">Hill analysis</a></li>
+                <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><a href="aboutUs.html">About us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+						<!-- Content -->
+				<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Shift cryptographic analisis</h2>
+							<p></p>
+						</header>
+
+						<!-- Content -->
+						
+				
+            <div class="container">
+              <center>
+                  <h3>Shift text attack</h3>
+              </center>  
+              <br>
+              
+          
+          
+              <div class="row">
+                  <div class="col-6 col-12-xsmall">
+                                      <h3></h3>
+                                      <div class="mb-3">
+                                      <label for="inputTextEncrypt" class="form-label">Text :</label>
+                                      <input type="text" class="form-control" id="inputTextEncrypt"
+                                             aria-describedby="textHelp" style="text-transform:uppercase">
+                                      <div id="textHelp" class="form-text">Please introduce some text to attack.</div>
+                                  </div>
+                                  
+                                  <div class="text-center">
+                                      <button id="submitButtoncrypt" type="button"
+                                              class="button primary" onclick="handleCypher()">Attack
+                                      </button>
+                                  </div>
+                              </form>
+                              <div class="col-lg-11">
+                                <textarea id="outputText" class="form-control" rows="3"></textarea>
+                              </div>
+                          </div> 
+                        </div>   
+
+
+			
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

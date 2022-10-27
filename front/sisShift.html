@@ -1,0 +1,212 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>CriptoMonkas</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <script>
+            const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+            const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const shift = {};
+            
+
+            shift.enc = (text, key) => { // key : int
+            var encrypted = '';
+            
+            text.split('').forEach(chr => {
+                encrypted += abc[(abc.indexOf(chr) + key) % 26];
+            });
+            
+            return encrypted
+            }
+            shift.dec = (text, key) => { // key : int
+                return shift.enc(text, 26 - key)
+            }
+
+            shift.getkey = () => {
+                return random(0, 26)
+            }
+
+            const handleCypher = (method) => {
+                const keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+                
+                if (method == 'encrypt') {
+                    let text = document.getElementById("textEncrypt").value;
+                    let key = document.getElementById("keyEncrypt").value;
+                    if(!(key in keys)){
+                        key = shift.getkey();
+                        document.getElementById('keyEncrypt').placeholder = key;
+                    }
+                    key = +key; // Converts to int
+                    document.getElementById("outputEncrypt").value = shift.enc(text, key);
+
+                } else if (method == 'decrypt') {
+                    let text = document.getElementById("textDecrypt").value;
+                    let key = document.getElementById("keyDecrypt").value;
+                    document.getElementById("outputDecrypt").value = '';
+                    if(!(key in keys)){
+                        for (let i = 0; i < 26; i++) {
+                            document.getElementById("outputDecrypt").value += shift.dec(text, i) + ', ';
+                        }
+                    } else {
+                        key = +key; // Converts to int
+                        document.getElementById("outputDecrypt").value = shift.dec(text, key);
+                    }
+                    
+                }
+                
+            }
+        </script>
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			 <!-- Header -->
+             <header id="header">
+                <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+                <nav id="nav">
+                  <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li>
+                      <a href="#">Crpyto Sistems</a>
+                      <ul>
+                        <li>
+                          <a href="#"> Classic</a>
+                          <ul>
+                            <li><a href="sisShift.html">Shift</a></li>
+                            <li><a href="sisAfin.html">Affine</a></li>
+                            <li><a href="sisPermutacion.html">Permutation</a></li>
+                            <li><a href="sisSustitucion.html">Sustitution</a></li>
+                            <li><a href="sisHill.html">Hill</a></li>
+                            <li><a href="sisVigenere.html">Vigenere</a></li>
+                            <li>
+                          </ul>
+                        <li> <li>
+                          <a href="#"> Block</a>
+                          <ul>
+                            <li><a href="AES.html">AES</a></li>
+                            <li><a href="T-DES.html">T-DES</a></li>
+                            <li><a href="S-DES.html">S-DES</a></li>
+                            <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                            <li>
+                          </ul>
+                        <li> </a>
+                          <a href="#">Analysis</a>
+                          <ul>
+                            <li><a href="AnShift.html">Shift analysis</a></li>
+                            <li><a href="AnAfin.html">Affine analysis</a></li>
+                            <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                            <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                            <li><a href="AnHill.html">Hill analysis</a></li>
+                            <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    <li><a href="aboutUs.html">About us</a></li>
+                  </ul>
+                </nav>
+              </header>
+
+						<!-- Content -->
+						
+
+<div class="container">
+    <!--  -->
+    <div class="row">
+        <div class="wrapper style1">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Encrypt</h3>
+                <div class="row">
+                    <form id="myForm">
+                        <div class="row gtr-uniform gtr-50">
+                            <div class="col-6 col-12-xsmall">
+                                <input type="text" name="Text to encrypt" id="textEncrypt" value="" placeholder="Text to encrypt" style="text-transform:uppercase" />
+                            </div>
+                            <div class="col-6 col-12-xsmall">
+                                <input type="number" name="key" id="keyEncrypt" value="" placeholder="KEY" min="0" max="25" step="1"/>
+                            </div>
+                                <span> Please introduce some key in <span
+                                class="math inline">ℤ<sub>26</sub></span>. If you don't, the system will
+                            automatically generate one.
+                            </div>
+                        </div>
+                        <div class="text-center">
+
+                            <button id="submitButtonEncrypt" type="button"
+                                    class="button primary" onclick="handleCypher('encrypt')">Encrypt                                   
+                            </button>
+
+                            <button id="ResetButton" type="reset"
+                                    class="button primary">Reset                                 
+                            </button>
+                        </div>
+                    </form>
+
+                    <input type="text" id="outputEncrypt" disabled></input>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="wrapper style1">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Decrypt</h3>
+                    <div class="row">
+                        <form id="myForm">
+                            <div class="row gtr-uniform gtr-50">
+                                <div class="col-6 col-12-xsmall">
+                                    <input type="text" name="Text to encrypt" id="textDecrypt" placeholder="Text to encrypt" style="text-transform:uppercase" />
+                                </div>
+                                <div class="col-6 col-12-xsmall">
+                                    <input type="number" name="key" id="keyDecrypt" placeholder="KEY" min="0" max="25" step="1"/>
+                                </div>
+                                    <span> Please introduce some key in <span
+                                    class="math inline">ℤ<sub>26</sub></span>. If you don't, the system will
+                                    try with every possible key.
+                                </div>
+                            </div>
+                            <div class="text-center">
+    
+                                <button id="submitButtonEncrypt" type="button"
+                                        class="button primary" onclick="handleCypher('decrypt')">Decrypt                                   
+                                </button>
+    
+                                <button id="ResetButton" type="reset"
+                                        class="button primary">Reset                                 
+                                </button>
+                            </div>
+                        </form>
+
+                        <textarea rows='4' type="text" id="outputDecrypt" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+
+			<!-- Footer -->
+				<footer id="footer">
+                    <ul class="copyright">
+                      <li>&copy; CriptoMonkas. All rights reserved.</li>
+                      <li>Design: <a href="http://html5up.net">HTML5 UP,</a></li>
+                      <li>&copy;  Deyvi Ardila & Samuel Alvarez.</li>
+                    </ul>
+                  </footer>
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+            
+
+	</body>
+</html>

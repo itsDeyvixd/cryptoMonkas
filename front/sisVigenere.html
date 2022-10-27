@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <title>CriptoMonkas</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <noscript>
+    <link rel="stylesheet" href="assets/css/noscript.css" />
+  </noscript>
+  <script>
+    const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+        const abc = 'abcdefghijklmnopqrstuvwxyz';
+        const generateKey = ()=>{
+            let lenkey = random(4, 9);
+            const temp = [];
+            for (let i = 0; i < lenkey; i++) {
+                temp.push(i);
+            }
+            const key = [];
+            for (let i = 1; i <= lenkey; i++) {
+                key.push(abc[temp.splice(random(0, temp.length), 1)]);
+            }
+            return key.join('').toUpperCase();
+
+        }
+
+        const url = "http://localhost:5000/vig/";
+
+        const handleCypher = (mode) => {
+            if(mode == "encrypt"){
+                let text = document.getElementById("inputTextVigenere").value;
+                let key = document.getElementById("vigenereKey").value;
+                if(!key){
+                    key = generateKey();
+                    document.getElementById("vigenereKey").value = key
+                }
+                const sendInfo = {"plaintext": text, "key": key};
+                fetch(url + 'enc', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        document.getElementById("outputTextVigenere").value = jsonResponse.ciphertext;
+                    });
+
+            } else if (mode == "decrypt") {
+                let text = document.getElementById("inputTextVigenere").value;
+                let key = document.getElementById("vigenereKey").value;
+                if(!key){
+                    key = generateKey();
+                    document.getElementById("vigenereKey").value = key
+                }
+                const sendInfo = {"ciphertext": text, "key": key};
+                fetch(url + 'dec', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        document.getElementById("outputTextVigenere").value = jsonResponse.plaintext;
+                    });
+            }
+        }
+  </script>
+</head>
+
+<body class="is-preload">
+  <div id="page-wrapper">
+    <!-- Header -->
+    <header id="header">
+      <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+      <nav id="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li>
+            <a href="#">Crpyto Sistems</a>
+            <ul>
+              <li>
+                <a href="#"> Classic</a>
+                <ul>
+                  <li><a href="sisShift.html">Shift</a></li>
+                  <li><a href="sisAfin.html">Affine</a></li>
+                  <li><a href="sisPermutacion.html">Permutation</a></li>
+                  <li><a href="sisSustitucion.html">Sustitution</a></li>
+                  <li><a href="sisHill.html">Hill</a></li>
+                  <li><a href="sisVigenere.html">Vigenere</a></li>
+                  <li>
+                </ul>
+              <li>
+              <li>
+                <a href="#"> Block</a>
+                <ul>
+                  <li><a href="AES.html">AES</a></li>
+                  <li><a href="T-DES.html">T-DES</a></li>
+                  <li><a href="S-DES.html">S-DES</a></li>
+                  <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                  <li>
+                </ul>
+              <li> </a>
+                <a href="#">Analysis</a>
+                <ul>
+                  <li><a href="AnShift.html">Shift analysis</a></li>
+                  <li><a href="AnAfin.html">Affine analysis</a></li>
+                  <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                  <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                  <li><a href="AnHill.html">Hill analysis</a></li>
+                  <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><a href="aboutUs.html">About us</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main -->
+    <div id="main" class="wrapper style1">
+      <div class="container">
+        <header class="major">
+          <h2>Vigenere criptographic system</h2>
+          <p>The Vigenère cipher uses a 26×26 table with A to Z as the row heading and column heading This table is
+            usually referred to as the Vigenère Tableau, Vigenère Table or Vigenère Square. We shall use Vigenère Table.
+            The first row of this table has the 26 English letters. Starting with the second row, each row has the
+            letters shifted to the left one position in a cyclic way. For example, when B is shifted to the first
+            position on the second row, the letter A moves to the end.</p>
+        </header>
+        <!-- <p><span class="image fit"><img src="images/vigenere.png" alt="" /></span> -->
+
+        <!-- Content -->
+
+
+
+        <!--  -->
+
+        <div class="col-lg-6">
+          <div class="well bs-component">
+            <form class="form-horizontal">
+              <fieldset>
+                <div class="form-group">
+                  <label for="textArea" class="col-lg-1 control-label">Input</label>
+                  <div class="col-lg-11">
+                    <textarea id="inputTextVigenere" class="form-control" rows="3"></textarea>
+                  </div>
+                </div>
+                <br>
+                <div class="form-group">
+                  <label class="col-lg-1 control-label">Key</label>
+                  <div class="col-lg-3">
+                    <input type="text" class="form-control" id="vigenereKey" placeholder="Key Word">
+                    <br>
+                  </div>
+                  <button id="ResetButton" type="reset" class="button primary">Reset </button>
+                  <br>
+                  <br>
+                  <div class="col-lg-4">
+                    <a href="#" class="button primary" onclick="handleCypher('encrypt')">Encrypt</a>
+                    <a href="#" class="button primary" onclick="handleCypher('decrypt')">Decrypt</a>
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+                  <label for="textArea" class="col-lg-1 control-label">Output</label>
+                  <div class="col-lg-11">
+                    <textarea id="outputTextVigenere" class="form-control" rows="3"></textarea>
+                  </div>
+                </div>
+
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <p>
+          <!-- c mamo  -->
+        </p>
+      </div>
+
+      </main>
+
+      <!-- Footer -->
+      <footer id="footer">
+        <ul class="copyright">
+          <li>&copy; CriptoMonkas. All rights reserved.</li>
+          <li>Design: <a href="http://html5up.net">HTML5 UP,</a></li>
+          <li>&copy; Deyvi Ardila & Samuel Alvarez.</li>
+        </ul>
+      </footer>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="assets/js/vigenere.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>Affine</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<script>
+        const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+        const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        const invertible = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25];
+        const inverses = [1, 9, 21, 15, 3, 19, 7, 23, 11, 5, 17, 25];
+
+        const matvecProd = (M, vec) => {
+            if(M[0].length != vec.length){
+                return 0
+            }
+            const result = [];
+            for (let i = 0; i < M.length; i++) {
+                let sum = 0;
+                for (let j = 0; j < vec.length; j++) {
+                    sum += M[i][j] * vec[j];
+                }
+                while(sum < 0){
+                    sum += 26;
+                }
+                sum %= 26;
+                result.push(sum);
+            }
+
+            return result;
+        }
+        
+        const matmatProd = (M1, M2) => {
+            if(M1[0].length != M2.length){
+                return 0
+            }
+
+            const result = [];
+            for (let i = 0; i < M1.length; i++) {
+                result.push([]);
+                for (let j = 0; j < M2[0].length; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < M2.length; k++) {
+                        sum += M1[i][k] * M2[k][j];
+                    }
+                    while(sum < 0){
+                        sum += 26;
+                    }
+                    sum %= 26;
+                    result[i].push(sum);
+                }
+            }
+
+            return result;
+        }
+
+        const cofactor = (M, ord, row, col) => {
+            const newMat = [[]];
+            let newOrd = ord - 1;
+            let x = 0;
+            let y = 0;
+            for (let i = 0; i < ord; i++) {
+                for (let j = 0; j < ord; j++) {
+                    if(i != row && j != col){
+                        newMat[x].push(M[i][j]);
+                        y += 1;
+                        if(y >= newOrd){
+                            newMat.push([]);
+                            x += 1;
+                            y = 0;
+                        }
+                    }
+                }
+            }
+            return ((-1) ** (row + col)) * det(newMat, newOrd);
+        }
+
+        const det = (M, ord) => {
+
+            if(ord == 1){
+                return M[0][0];
+            }
+            let det = 0;
+            for (let j = 0; j < ord; j++) {
+                det += M[0][j] * cofactor(M, ord, 0, j);
+            }
+            while(det < 0){
+                det += 26
+            }
+            det %= 26;
+
+            return det;
+        }
+
+        const invmat = (M, ord) => {
+            let temp = det(M, ord);
+            while(temp < 0){
+                temp += 26;
+            }
+            temp %= 26;
+            const d = inverses[invertible.indexOf(temp)]; // 1/|M|
+            const inv = [];
+
+            for (let i = 0; i < ord; i++) {
+                inv.push([]);
+                for (let j = 0; j < ord; j++) {
+                    inv[i].push(d * cofactor(M, ord, i, j));
+                }
+            }
+            // console.log(inv);
+            const truinv = [];
+            for (let i = 0; i < ord; i++) {
+                truinv.push([]);
+                for (let j = 0; j < ord; j++) {
+                    let ru = inv[j][i];
+                    while(ru < 0){
+                        ru += 26;
+                    }
+                    ru %= 26;
+                    truinv[i].push(ru);
+                }
+            }
+
+            return truinv
+        }
+
+        const getMatrix = (ord) => {
+            const candidate = [];
+            for (let i = 0; i < ord; i++) {
+                candidate.push([]);
+                for (let j = 0; j < ord; j++) {
+                    candidate[i].push(random(0, 26));
+                }
+            }
+
+            let d = det(candidate, ord);
+
+            while(d < 0){
+                d += 26;
+            }
+
+            d %= 26;
+            while(invertible.indexOf(d) < 0){
+                for (let i = 0; i < ord; i++) {
+                    for (let j = 0; j < ord; j++) {
+                        candidate[i][j] = (random(0, 26));
+                    }
+                }
+                d = det(candidate, ord);
+                while(d < 0){
+                    d += 26;
+                }
+                d %= 26;
+            }
+            
+            return candidate
+        }
+
+        const handleDecrypt = () => {
+            let text = document.getElementById("textDecrypt").value.toUpperCase();
+            let cypher = document.getElementById("keyDecrypt").value.toUpperCase();
+
+            if(text.length < 2 || cypher.length < 2){
+                document.getElementById("decryptionResultsDiv").style = "";
+                document.getElementById("cardDecryptionText").innerText = "YOU NEED AT LEAST TWO PAIRS OF CHARACTERS";
+                return 0
+            }
+
+            let M = [[0, 1], [0, 1]];
+            let y = [0, 0];
+            const x = [0, 0];
+
+            let success = false;
+
+            for(j = 1; j < Math.min(text.length, cypher.length); j++){
+                // M[1] = [abc.indexOf(text[j]), 1];
+                y[1] = abc.indexOf(cypher[j]);
+                for (let i = 0; i < j; i++) {
+                    M = [[abc.indexOf(text[i]), 1], [abc.indexOf(text[j]), 1]];
+                    y[0] = abc.indexOf(cypher[i]);
+                    
+                    if(invertible.indexOf(det(M, 2)) < 0){
+                        continue
+                    }
+                    let temp = matvecProd(invmat(M, 2), y);
+                    console.log(temp);
+                    if(invertible.indexOf(temp[0]) < 0){
+                        continue
+                    }
+                    x[0] = temp[0];
+                    x[1] = temp[1];
+                    success = true;
+                    break
+                }
+
+                if(success){
+                    break;
+                }
+            }
+
+            document.getElementById("decryptionResultsDiv").style = "";
+            if(success){
+                document.getElementById("cardDecryptionText").innerText = "The key is " + x;
+            } else{
+                document.getElementById("cardDecryptionText").innerText = "No luck :c"
+            }
+            /*
+            while(i + 1 < Math.min(text.length, cypher.length)){
+                if(invertible.indexOf(det(M, 2)) < 0){
+                    i += 1
+                    console.log(M, i);
+                    M[0][0] = M[1][0];
+                    M[1][0] = abc.indexOf(text[i]);
+                    y[0] = y[1];
+                    y[1] = abc.indexOf(cypher[i]);
+                    continue;
+                }
+                let temp = matvecProd(invmat(M, 2), y);
+                console.log(temp);
+                if(invertible.indexOf(temp[0]) < 1){
+                    i += 1
+                    M[0][0] = M[1][0];
+                    M[1][0] = abc.indexOf(text[i]);
+                    y[0] = y[1];
+                    y[1] = abc.indexOf(cypher[i]);
+                    continue;
+                }
+                console.log(temp)
+                x[0] = temp[0];
+                x[1] = temp[1];
+                break;
+            }*/
+            
+        }
+
+    </script>
+    </head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+ <!-- Header -->
+ <header id="header">
+    <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+    <nav id="nav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li>
+          <a href="#">Crpyto Sistems</a>
+          <ul>
+            <li>
+              <a href="#"> Classic</a>
+              <ul>
+                <li><a href="sisShift.html">Shift</a></li>
+                <li><a href="sisAfin.html">Affine</a></li>
+                <li><a href="sisPermutacion.html">Permutation</a></li>
+                <li><a href="sisSustitucion.html">Sustitution</a></li>
+                <li><a href="sisHill.html">Hill</a></li>
+                <li><a href="sisVigenere.html">Vigenere</a></li>
+                <li>
+              </ul>
+            <li> <li>
+              <a href="#"> Block</a>
+              <ul>
+                <li><a href="AES.html">AES</a></li>
+                <li><a href="T-DES.html">T-DES</a></li>
+                <li><a href="S-DES.html">S-DES</a></li>
+                <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                <li>
+              </ul>
+            <li> </a>
+              <a href="#">Analysis</a>
+              <ul>
+                <li><a href="AnShift.html">Shift analysis</a></li>
+                <li><a href="AnAfin.html">Affine analysis</a></li>
+                <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                <li><a href="AnHill.html">Hill analysis</a></li>
+                <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><a href="aboutUs.html">About us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Affine cryptographic system</h2>
+							<p>We need to have discover the two numbers used for encryption.
+                                So we just need where two letters get mapped after the encryption;
+                                the reason why this works is a little technical (see manual).
+                            </p>
+						</header>
+
+						<!-- Content -->
+						
+				
+            <div class="container">
+              <center>
+                  <h3>Affine text attack</h3>
+              </center>  
+              <br>
+              
+          
+            <!--
+              <div class="row">
+                  <div class="col-6 col-12-xsmall">
+                                      <h3></h3>
+                                      <div class="mb-3">
+                                      <label for="inputTextEncrypt" class="form-label">Text :</label>
+                                      <input type="text" class="form-control" id="inputTextEncrypt"
+                                             aria-describedby="textHelp" style="text-transform:uppercase">
+                                      <div id="textHelp" class="form-text">Please introduce some text to attack.</div>
+                                  </div>
+                                  
+                                  <div class="text-center">
+                                      <button id="submitButtoncrypt" type="button"
+                                              class="button primary">Attack
+                                      </button>
+                                  </div>
+                              </form>
+                          </div>
+                          <div id="encryptionResultsDiv" class="row mt-5" style="display: none;">
+                              <hr>
+                              <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
+                              <p><b>Encryption: </b><span id="cardEncryptionText"></span></p>
+                              <p><b>Key Used: </b><span id="cardEncryptionKey"></span></p>
+                          </div>      
+                        </div>   -->
+
+<div class="container">
+    <div class="row">
+        <h1 class="mt-3 text-center">Displacement Cipher</h1>
+    </div>
+    <div class="row">
+        <div class="col card container mt-3">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Decrypt</h3>
+                <div class="row">
+                    <form id="myForm">
+                        <div class="mb-3">
+                            <label for="inputTextDecrypt" class="form-label">Text</label>
+                            <input type="text" class="form-control" id="textDecrypt" aria-describedby="textHelp"
+                                   style="text-transform:uppercase">
+                            <div id="textHelp" class="form-text">Please introduce at least two distinct characters.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputKeyDecrypt" class="form-label">Cypher version</label>
+                            <input type="text" class="form-control" id="keyDecrypt" aria-describedby="keyHelp">
+                            <div id="keyHelp" class="form-text">Please introduce the cypher of the characters.</div>
+                        </div>
+                        <div class="text-center">
+                            <button id="submitButtonDecrypt" type="button"
+                                    class="button primary" onclick="handleDecrypt()">Decrypt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="decryptionResultsDiv" class="row mt-5" style="display: none;">
+                    <hr>
+                    <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
+                    <p><b>Description: </b><span id="cardDecryptionText"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+            <script src="Scripts/afin.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>Sust Analisis</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <script>
+            /*const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+            const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const frequencies = {'E': 12.02, 'T': 9.1, 'A': 8.12, 'O': 7.68, 'I': 7.31, 'N':6.95,
+        'S': 6.28, 'R':6.02, 'H': 5.92, 'D': 4.32, 'L': 3.98, 'U': 2.88, 'C': 2.71, 'M': 2.61,
+        'F': 2.3, 'Y': 2.11, 'W': 2.09, 'G': 2.03, 'P': 1.82, 'B': 1.49, 'V': 1.11, 'K': 0.69,
+        'X': 0.17, 'Q': 0.11, 'J': 0.10, 'Z': 0.07};
+
+            const getfrequencies = (text) => {
+                text.toUpperCase();
+                const relativefrequencies = {};
+                for (let i = 0; i < abc.length; i++) {
+                    relativefrequencies[abc[i]] = 0;
+                }
+                
+                for (let i = 0; i < text.length; i++) {
+                    const chr = text[i];
+                    if(abc.indexOf(chr) < 0){
+                        continue
+                    }
+                    relativefrequencies[chr] += 1;
+                }
+
+                for (let i = 0; i < abc.length; i++) {
+                    relativefrequencies[abc[i]] /= text.length;
+                }
+
+                return relativefrequencies;
+            }
+
+            const handleCypher = () => {
+                const text = document.getElementById("textDecrypt").value;
+                document.getElementById("decryptionResultsDiv").style = "";
+                document.getElementById("cardDecryptionText").innerText = getfrequencies(text);
+                document.getElementById("cardDecryptionKey").innerText = "These are the usual frequencies on the english alphabet:\n" + frequencies;
+            }*/
+      const url = "http://localhost:5000/subs/atk";
+
+      const handleCypher = () => {
+      let text = document.getElementById("textDecrypt").value;
+      //let key = document.getElementById("vigenereKey").value;
+      //if(!key){
+      //  key = 10;
+      //}
+      const sendInfo = {"ciphertext": text, "head": ['70']};
+      fetch(url, {
+          method: 'POST', // or 'PUT'
+          body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+          headers:{
+              'Content-Type': 'application/json'
+          }})
+          .then(function(response) {
+              return response.json();
+          })
+          .then(function(jsonResponse) {
+              // do something with jsonResponse
+              //document.getElementById("outputTextVigenere").value = jsonResponse.plaintext_attempts;
+              console.log(jsonResponse);
+              container = document.getElementById("decryptionResults");
+              container.innerText = '';
+              container.innerText += 'MONOGRAPHS AND THEIR FREQUENCY:\n';
+              for (let i = 0; i < jsonResponse.mono_letters.length; i++) {
+                container.innerText += jsonResponse.mono_letters[i] + ':' + jsonResponse.mono_values[i] + ', ';
+              }
+              container.innerText += '\n\nBIGRAPHS AND THEIR FREQUENCY:\n';
+              for (let i = 0; i < jsonResponse.bi_letters.length; i++) {
+                container.innerText += jsonResponse.bi_letters[i] + ':' + jsonResponse.bi_values[i] + ', ';
+              }
+          });
+}
+
+        </script>
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			 <!-- Header -->
+             <header id="header">
+                <h1 id="logo"><a href="index.html">CriptoMonkas!</a></h1>
+                <nav id="nav">
+                  <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li>
+                      <a href="#">Crpyto Sistems</a>
+                      <ul>
+                        <li>
+                          <a href="#"> Classic</a>
+                          <ul>
+                            <li><a href="sisShift.html">Shift</a></li>
+                            <li><a href="sisAfin.html">Affine</a></li>
+                            <li><a href="sisPermutacion.html">Permutation</a></li>
+                            <li><a href="sisSustitucion.html">Sustitution</a></li>
+                            <li><a href="sisHill.html">Hill</a></li>
+                            <li><a href="sisVigenere.html">Vigenere</a></li>
+                            <li>
+                          </ul>
+                        <li> <li>
+                          <a href="#"> Block</a>
+                          <ul>
+                            <li><a href="AES.html">AES</a></li>
+                            <li><a href="T-DES.html">T-DES</a></li>
+                            <li><a href="S-DES.html">S-DES</a></li>
+                            <li><a href="GammaPenta.html">Gamma-Pentagonal</a></li>
+                            <li>
+                          </ul>
+                        <li> </a>
+                          <a href="#">Analysis</a>
+                          <ul>
+                            <li><a href="AnShift.html">Shift analysis</a></li>
+                            <li><a href="AnAfin.html">Affine analysis</a></li>
+                            <li><a href="AnPermutacion.html">Permutation analysis</a></li>
+                            <li><a href="AnSustitucion.html">Sustitution analysis</a></li>
+                            <li><a href="AnHill.html">Hill analysis</a></li>
+                            <li><a href="AnVigenere.html">Vigenere analysis</a></li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    <li><a href="aboutUs.html">About us</a></li>
+                  </ul>
+                </nav>
+              </header>
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Substitution cryptographic system</h2>
+							<p>One big flaw with any monoalphabetic cypher is the fact
+                                that the frequence of each letter reveals a lot of information
+                                about the original text.
+                            </p>
+						</header>
+
+						<!-- Content -->
+						
+
+<div class="container">
+    <div class="row">
+        <h1 class="mt-3 text-center">Displacement Cipher</h1>
+    </div>
+    <div class="row">
+
+        <div class="col card container mt-3">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Decrypt</h3>
+                <div class="row">
+                    <form id="myForm">
+                        <div class="mb-3">
+                            <label for="inputTextDecrypt" class="form-label">Text</label>
+                            <textarea row="4" class="form-control" id="textDecrypt" aria-describedby="textHelp"
+                                   style="text-transform:uppercase"></textarea>
+                            <div id="textHelp" class="form-text">Please introduce the text to analyce it's frequencies.</div>
+                        </div>
+                        <div class="text-center">
+
+                            <button id="submitButtonDecrypt" type="button"
+                                    class="button primary" onclick="handleCypher()">Decrypt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <p id="decryptionResults" class="row mt-5"> 
+                </p>
+            </div>
+        </div>
+    </div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

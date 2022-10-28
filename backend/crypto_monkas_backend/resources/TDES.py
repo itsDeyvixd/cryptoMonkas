@@ -691,9 +691,9 @@ def valid_format(name: str) -> bool:
     return name[-1] in ["jpg", "png"]
 
 
-tdes_enc_parser = utils.file_parser()
+tdes_enc_parser = utils.file_parser(tdes_key)
 
-tdes_dec_parser = utils.file_parser()
+tdes_dec_parser = utils.file_parser(tdes_key)
 
 def handleModes(cypher, input, IV = [0] * 8, mode = 'ECB', encdec = "enc"):
     operation = {"enc": cypher.encrypt, "dec": cypher.decrypt}

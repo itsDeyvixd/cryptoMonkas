@@ -1,1 +1,12 @@
 the project now exists
+
+-- 27/10/2022 --
+Changes both in the frontend and the backend:
+Frontend:
+    - All cyphers except TDES, SDES and Gamma working
+    - See Hill and AES to get a peak at the treatment of images
+
+Backend:
+    - app.py changes on routes
+    - hill and aes changes (the treatment of pictures has changed)
+    - utils.py changed (file_parser)

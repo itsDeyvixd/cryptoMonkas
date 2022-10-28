@@ -178,12 +178,17 @@ def dec_parser(key_type: callable) -> reqparse.RequestParser:
     return new_parser
 
 
-def file_parser():
+def file_parser(key_type: callable):
     new_parser = reqparse.RequestParser()
     new_parser.add_argument(
         "file",
-        type=werkzeug.datastructures.FileStorage,
-        location="files",
+        type=str,
+        required=True,
+        help="argument is required",
+    )
+    new_parser.add_argument(
+        "key",
+        type=key_type,
         required=True,
         help="argument is required",
     )

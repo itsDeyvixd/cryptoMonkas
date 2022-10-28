@@ -10,6 +10,113 @@
     <noscript>
         <link rel="stylesheet" href="assets/css/noscript.css" />
     </noscript>
+<script>
+    const url = "http://localhost:5000/aes/";
+
+let currentimg = '';
+let prefix = '';
+const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+
+const generateIV = () => {
+    iv = '';
+    for (let i = 0; i < 16; i++) {
+        iv += random(0, 256).toString();
+        if(i != 15){
+            iv += ' '; 
+        }
+    }
+    return iv
+}
+
+const generateKey = () => {
+    size = random(0, 3);
+    key = ''
+    for (let i = 0; i < 8 * (2 + size); i++) {
+        key += random(0, 256).toString();
+        if(i != 8 * (2 + size) - 1){
+            key += ' '; 
+        }
+    }
+    return key
+}
+
+const loadFile = function(event) {
+    var output = document.getElementById('previewInput');
+    output.src = URL.createObjectURL(event.target.files[0]);
+    //let link = document.createElement('a');
+    //link.download = 'hello.txt';
+
+    // let blob = new Blob(['Hello, world!'], {type: 'text/plain'});
+
+    let reader = new FileReader();
+    reader.readAsDataURL(event.target.files[0]); // converts the blob to base64 and calls onload
+
+    reader.onload = function() {
+    //link.href = reader.result; // data url
+        currentimg = reader.result;
+        prefix = currentimg.split(",")[0] + ","
+        // console.log(currentimg)
+        // console.log(prefix)
+    //link.click();
+    };
+
+    output.onload = function() {
+      URL.revokeObjectURL(output.src) // free memory
+    }
+
+  };
+
+const handleCypher = (mod) => {
+    if(!currentimg){
+            console.log("Error")
+            return 0;
+    }
+    //key = document.getElementById("keyEncrypt").value;
+    //key = '12 13 11 25 72 23 43 3 11'; 
+    //key = '229 190 165 70 205 153 133 109 221';
+    mode = document.getElementById('category').value;
+    if(!mode){
+        console.log("Error with the mode")
+        return 0;
+    }
+    iv = document.getElementById("ivEncrypt").value;
+    if(!iv){
+        iv = generateIV();
+        document.getElementById("ivEncrypt").value = iv;
+    }
+    key = document.getElementById("keyEncrypt").value;
+    if(!key){
+        key = generateKey();
+        document.getElementById("keyEncrypt").value = key
+    }
+    const sendInfo = {"file": currentimg.slice(prefix.length), "key": mode + ', ' + iv + ', ' + key};
+    fetch(url + mod, {
+        method: 'POST', // or 'PUT',
+        body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+        headers:{
+            'Content-Type': 'application/json'
+        }})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(jsonResponse) {
+            // do something with jsonResponse
+            let output = document.getElementById('previewOutput');
+            output.src = prefix + jsonResponse.output;
+
+            let link = document.createElement('a');
+            link.download = "encrypted.png";
+            link.target = '_blank';
+            output.onload = function() {
+                link.href = prefix + jsonResponse.output;
+                link.click() // Downloads the picture
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        });
+
+    
+}
+</script>
 </head>
 
 <body class="is-preload">
@@ -146,18 +253,28 @@
                         <div class="col-6 col-12-xsmall">
 
                             <select name="category" id="category">
-                            <option value="1">Please Select one </option>
-                            <option value="2">ECB</option>
-                            <option value="3">CBC</option>
-                            <option value="4">OFB</option>
-                            <option value="5">CBF</option>
-                            <option value="6">Counter</option>
+                            <option value="">Please Select one </option>
+                            <option value="ECB">ECB</option>
+                            <option value="CBC">CBC</option>
+                            <option value="OFB">OFB</option>
+                            <option value="CFB">CFB</option>
+                            <option value="CTR">Counter</option>
                         </select>
                             <br>
-                            <label for="imageInput" class="button primary icon solid fa-download">Select Image</label>
-                            <input id="imageInput" style="visibility:hidden;" type="file" accept="image/png">
+                            <label for="imageInput" class="button primary icon solid fa-download" >Select Image</label>
+                            <input id="imageInput" style="visibility:hidden;" type="file" onchange="loadFile(event, 'previewInput')">
+                            <input type="text" name="keyEncrypt" id="keyEncrypt" placeholder="GIMME THAT KEY">
+                            <input type="text" name="ivEncrypt" id="ivEncrypt" placeholder="GIMME THAT IV (not needed for ECB or Counter)">
                             <div class="col-12">
+                                <img id="previewInput" width="200"/>
+                                <p><img id="previewOutput" width="200"/></p>
                             </div>
+                            <button id="submitButtonEncrypt" type="button primary"
+                                    class="button primary" onclick="handleCypher('enc')">Encrypt
+                            </button>
+                            <button id="submitButtonDecrypt" type="button primary"
+                                    class="button primary" onclick="handleCypher('dec')">Decrypt
+                            </button>
                         </div>
 
                         <!-- <div class="col-6 col-12-xsmall">
@@ -196,7 +313,7 @@
                                     faster than DES in both software and hardware and is simple to implement. As a new
                                     encryption standard, it is currently being used on a large scale.
                                     The next <a
-                                        href="https://www.youtube.com/playlist?list=PLf7Ohq4Dp64KgBSruJ7-RfjaOFW3agb2G">
+                                        href="https://www.youtube.com/playlist?list=PLf7Ohq4Dp64KgBSruJ7-RfjaOFW3agb2G" target="_blank">
                                         Videos !</a> have a better explaination of the AES methods
                                     .
                                 </p>
@@ -215,8 +332,8 @@
                     <script src="assets/js/breakpoints.min.js"></script>
                     <script src="assets/js/util.js"></script>
                     <script src="assets/js/main.js"></script>
-                    <script algorithm="hill" src="scripts/script.js"></script>
-                    <script algorithm="hill" src="scripts/imageProcessingScript.js"></script>
+                    <!--<script algorithm="hill" src="scripts/script.js"></script>
+                    <script algorithm="hill" src="scripts/imageProcessingScript.js"></script>-->
 
 </body>
 

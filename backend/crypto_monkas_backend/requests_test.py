@@ -311,7 +311,7 @@ if __name__ == "__main__":
 	#	files={"file": open("test_files/hillencCat.png", "rb")},
 	#).json()
     
-    # TDES modes: ECB, CBC, OFB, CBF
+    # TDES modes: ECB, CBC, OFB, CFB
     # Format: "[mode], [iv], [key]" where
     # [iv] (inicial vector) is made of 8 bytes (8 hex values)
     # [key] is made of 16 or 24 bytes (16 or 24 numbers on the range of 0-255)

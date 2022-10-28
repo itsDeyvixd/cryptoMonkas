@@ -22,7 +22,7 @@ else:
     os.makedirs(utils.FILEPATH)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials = True)
 app.config["UPLOAD FOLDER"] = utils.FILEPATH
 
 api = Api(app)
@@ -41,12 +41,12 @@ api.add_resource(VigDec, "/vig/dec")
 api.add_resource(VigAtk, "/vig/atk")
 api.add_resource(PermEnc, "/perm/enc")
 api.add_resource(PermDec, "/perm/dec")
-api.add_resource(HillEnc, "/hill/enc/<filename>/<key>")
-api.add_resource(HillDec, "/hill/dec/<filename>/<key>")
+api.add_resource(HillEnc, "/hill/enc")
+api.add_resource(HillDec, "/hill/dec")
 api.add_resource(TDESEnc, "/tdes/enc/<filename>/<key>")
 api.add_resource(TDESDec, "/tdes/dec/<filename>/<key>")
-api.add_resource(AESEnc, "/aes/enc/<filename>/<key>")
-api.add_resource(AESDec, "/aes/dec/<filename>/<key>")
+api.add_resource(AESEnc, "/aes/enc")
+api.add_resource(AESDec, "/aes/dec")
 
 if __name__ == "__main__":
     app.run(debug=True)

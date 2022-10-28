@@ -11,51 +11,88 @@
         
 const url = "http://localhost:5000/hill/";
 
-const handleCypher = (mode) => {
-    if(mode == "encrypt"){
-        let text = document.getElementById("inputTextVigenere").value;
-        let key = document.getElementById("vigenereKey").value;
-        if(!key){
-            key = generateKey();
-            document.getElementById("vigenereKey").value = key
-        }
-        const sendInfo = {"plaintext": text, "key": key};
-        fetch(url + 'enc', {
-            method: 'POST', // or 'PUT'
-            body: JSON.stringify(sendInfo), // data can be `string` or {object}!
-            headers:{
-                'Content-Type': 'application/json'
-            }})
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(jsonResponse) {
-                // do something with jsonResponse
-                document.getElementById("outputTextVigenere").value = jsonResponse.ciphertext;
-            });
+let currentimg = '';
+let prefix = '';
+const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
 
-    } else if (mode == "decrypt") {
-        let text = document.getElementById("inputTextVigenere").value;
-        let key = document.getElementById("vigenereKey").value;
-        if(!key){
-            key = generateKey();
-            document.getElementById("vigenereKey").value = key
+const generateKey = () => {
+    size = random(2, 5);
+    key = ''
+    for (let i = 0; i < size * size; i++) {
+        key += random(0, 256).toString();
+        if(i != size * size - 1){
+            key += ' '; 
         }
-        const sendInfo = {"ciphertext": text, "key": key};
-        fetch(url + 'dec', {
-            method: 'POST', // or 'PUT'
-            body: JSON.stringify(sendInfo), // data can be `string` or {object}!
-            headers:{
-                'Content-Type': 'application/json'
-            }})
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(jsonResponse) {
-                // do something with jsonResponse
-                document.getElementById("outputTextVigenere").value = jsonResponse.plaintext;
-            });
     }
+    return key
+}
+
+const loadFile = function(event) {
+    var output = document.getElementById('previewInput');
+    output.src = URL.createObjectURL(event.target.files[0]);
+    //let link = document.createElement('a');
+    //link.download = 'hello.txt';
+
+    // let blob = new Blob(['Hello, world!'], {type: 'text/plain'});
+
+    let reader = new FileReader();
+    reader.readAsDataURL(event.target.files[0]); // converts the blob to base64 and calls onload
+
+    reader.onload = function() {
+    //link.href = reader.result; // data url
+        currentimg = reader.result;
+        prefix = currentimg.split(",")[0] + ","
+        // console.log(currentimg)
+        // console.log(prefix)
+    //link.click();
+    };
+
+    output.onload = function() {
+      URL.revokeObjectURL(output.src) // free memory
+    }
+
+  };
+
+const handleCypher = (mode) => {
+    if(!currentimg){
+            console.log("Error")
+            return 0;
+    }
+    key = document.getElementById("keyEncrypt").value;
+    //key = '12 13 11 25 72 23 43 3 11'; 
+    //key = '229 190 165 70 205 153 133 109 221';
+
+    if(!key){
+        key = generateKey();
+        document.getElementById("keyEncrypt").value = key
+    }
+    const sendInfo = {"file": currentimg.slice(prefix.length), "key": key};
+    console.log(sendInfo)
+    fetch(url + mode, {
+        method: 'POST', // or 'PUT',
+        body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+        headers:{
+            'Content-Type': 'application/json'
+        }})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(jsonResponse) {
+            // do something with jsonResponse
+            let output = document.getElementById('previewOutput');
+            output.src = prefix + jsonResponse.output;
+
+            let link = document.createElement('a');
+            link.download = "encrypted.png";
+            link.target = '_blank';
+            output.onload = function() {
+                link.href = prefix + jsonResponse.output;
+                link.click() // Downloads the picture
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        });
+
+    
 }
 
         </script>
@@ -117,13 +154,13 @@ const handleCypher = (mode) => {
 						<header class="major">
 							<h2>Hill cryptographic system</h2>
 							<p>For a fixed <span class="math inline"><em>m</em></span> in this cryptosystem
-                                <span class="math inline">𝒫 = 𝒞 = ℤ<sub>26</sub><sup><em>m</em></sup></span> y <span
+                                <span class="math inline">𝒫 = 𝒞 = ℤ<sub>256</sub><sup><em>m</em></sup></span> y <span
                                         class="math inline">
-                                        𝒦 := {<em>A</em> ∈ <em>M</em><sub><em>m</em></sub>(ℤ<sub>26</sub>) : (|<em>A</em>|,26) = 1}</span>
+                                        𝒦 := {<em>A</em> ∈ <em>M</em><sub><em>m</em></sub>(ℤ<sub>256</sub>) : (|<em>A</em>|,256) = 1}</span>
                                 where
-                                <span class="math inline"><em>A</em> ∈ <em>M</em><sub><em>m</em></sub>(ℤ<sub>26</sub>)</span>
+                                <span class="math inline"><em>A</em> ∈ <em>M</em><sub><em>m</em></sub>(ℤ<sub>256</sub>)</span>
                                 is a square matrix of length <span class="math inline"><em>m</em></span> with its elements in
-                                <span class="math inline">ℤ<sub>26</sub></span> and <span class="math inline">|<em>A</em>|</span>
+                                <span class="math inline">ℤ<sub>256</sub></span> and <span class="math inline">|<em>A</em>|</span>
                                 is the determinant of matrix <span class="math inline"><em>A</em></span>. Así, Thus, for a fixed
                                 matrix
                                 <span class="math inline"><em>K</em> ∈ 𝒦</span>, we have that
@@ -152,51 +189,26 @@ const handleCypher = (mode) => {
                                    style="text-transform:uppercase"> -->
                             <div id="textHelp" class="form-text">Please introduce some picture beautiful picture.</div>
                             <p><input type="file" class="form-control" accept="image/*" name="imageEncrypt" id="imageEncrypt" src="./images/"  onchange="loadFile(event, 'previewInput')" ></p>
-                            <p><img id="previewInput" width="200" /></p>
+                            <p><img id="previewInput" width="200"/></p>
+                            <p><img id="previewOutput" width="200"/></p>
                         </div>
                         <div class="mb-3">
                             <label for="inputKeyEncrypt" class="form-label">Key</label>
-                            <input type="number" class="form-control" id="keyEncrypt" aria-describedby="keyHelp">
+                            <input type="text" class="form-control" id="keyEncrypt" aria-describedby="keyHelp">
                             
                         </div>
                         <div class="text-center">
 
-                            <button id="submitButtonEncrypt" type="button"
-                                    class="btn btn-primary justify-content-center" onclick="handleCypher()">Encrypt
+                            <button id="submitButtonEncrypt" type="button primary"
+                                    class="button primary" onclick="handleCypher('enc')">Encrypt
+                            </button>
+                            <button id="submitButtonDecrypt" type="button primary"
+                                    class="button primary" onclick="handleCypher('dec')">Decrypt
                             </button>
                         </div>
                     </form>
                 </div>
-                <div id="encryptionResultsDiv" class="row mt-5" style="display: none;">
-                    <hr>
-                    <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
-                    <p><b>Encryption: </b><span id="cardEncryptionText"></span></p>
-                    <p><b>Key Used: </b><span id="cardEncryptionKey"></span></p>
-                </div>      
-               <div class="col-6 col-12-xsmall">
-                <h3>Decrypt</h3>
-                            <label for="inputTextDecrypt" class="form-label">Text</label>
-                            <input type="text" class="form-control" id="inputTextDecrypt" aria-describedby="textHelp"
-                                   style="text-transform:uppercase">
-                            <div id="textHelp" class="form-text">Please introduce some beautiful image.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="inputKeyDecrypt" class="form-label">Key</label>
-                            <input type="number" class="form-control" id="inputKeyDecrypt" aria-describedby="keyHelp">
-                        </div>
-                        <div class="text-center">
-
-                            <button id="submitButtonDecrypt" type="button primary"
-                                    class="button primary"">Decrypt
-                            </button>
                    
-                <div id="decryptionResultsDiv" class="row mt-5" style="display: none;">
-                    <hr>
-                    <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
-                    <p><b>Decryption: </b><span id="cardDecryptionText"></span></p>
-                    <p><b>Key Used: </b><span id="cardDecryptionKey"></span></p>
-                    </div>
-                </div>
             </div>
         </div>
         <br>
@@ -277,8 +289,8 @@ const handleCypher = (mode) => {
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-            <script algorithm="hill" src="scripts/script.js"></script>
-            <script algorithm="hill" src="scripts/imageProcessingScript.js"></script>
+            <!--<script algorithm="hill" src="scripts/script.js"></script>
+            <script algorithm="hill" src="scripts/imageProcessingScript.js"></script>-->
 
 	</body>
 </html>

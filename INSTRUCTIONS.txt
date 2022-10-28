@@ -1,0 +1,11 @@
+After pulling the project, follow the next steps to get started:
+1. Open up a terminal and go to [yourCurrentRoute]/backend
+2. If you have installed poetry, then execute "poetry shell" on the terminal.
+    Otherwise, install poetry with pip
+3. If no errors ocurred, execute poetry install and wait
+4. execute "python crypto_monkas_backend/app.py", you may have to install the following dependencies with pip:
+    - flask_cors
+    - pillow (this is the PIL library)
+    - pycryptodome (this is the Crypto library)
+5. When you're finally able to execute the app.py, open up index.html on the "front" folder.
+6. Enjoy your time!

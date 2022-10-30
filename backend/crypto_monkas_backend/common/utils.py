@@ -193,3 +193,26 @@ def file_parser(key_type: callable):
         help="argument is required",
     )
     return new_parser
+
+def sdes_parser(key_type: callable):
+    new_parser = reqparse.RequestParser()
+    new_parser.add_argument(
+        "text", type=str, required=True, help="input text is required"
+    )
+    new_parser.add_argument(
+        "key", type=key_type, required=True, help="unvalid argument: {error_msg}"
+    )
+    return new_parser
+
+def gamma_parser(key_type: callable, key_point: callable):
+    new_parser = reqparse.RequestParser()
+    new_parser.add_argument(
+        "text", type=str, required=True, help="input text is required"
+    )
+    new_parser.add_argument(
+        "point", type=key_point, required=True, help="Location of the origint required"
+    )
+    new_parser.add_argument(
+        "key", type=key_type, required=True, help="unvalid argument: {error_msg}"
+    )
+    return new_parser

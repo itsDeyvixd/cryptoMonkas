@@ -7,6 +7,96 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <script>
+      const random = (min, max) => {return Math.floor(Math.random() * (max - min) + min)};
+        const url = "http://localhost:5000/gamma/";
+
+        // const sendInfo = {"plaintext": "ECDBAF", "key": "2 1"}; // "ECDBAF", "5 3 4 2 1"
+        /*const encrypt = (text, key) => {
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            var cypher = '';
+            xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log(xhr.responseText);
+                cypher = xhr.responseText["ciphertext"];
+            }
+            };
+            const sendInfo = {"plaintext": text, "key": key};
+            
+            xhr.send(JSON.stringify(sendInfo));
+            console.log(cypher)
+            return cypher;
+            
+        }*/
+
+        const generateKey = ()=>{
+            key = ''
+            for (let i = 0; i < 26; i++) {
+              key += random(0, 26).toString();
+              if(i < 25){
+                key += '-'
+              }
+            }
+            return key
+        }
+
+        const generatePoint = ()=> {
+          return random(-26, 26).toString() + ', ' + random(-30, 10).toString()
+        }
+
+        const handleCypher = (mode) => {
+            if(mode == "encrypt"){
+                let text = document.getElementById("textEncrypt").value;
+                let key = document.getElementById("keyEncrypt").value;
+                let point = document.getElementById("pointEncrypt").value
+                if(!key){
+                    key = generateKey();
+                    document.getElementById("keyEncrypt").value = key
+                }
+                if(!point){
+                  point = generatePoint();
+                  document.getElementById("pointEncrypt").value = point
+                }
+                const sendInfo = {"text": text, "point": point, "key": key};
+                fetch(url + 'enc', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        console.log(jsonResponse.output)
+                        
+                        document.getElementById("cardEncryptionText").innerText = jsonResponse.output + '\n\nPercentage of Success:' + (jsonResponse.percentageSuccess * 100).toString();
+                    });
+
+            } else if (mode == "decrypt") {
+                let text = document.getElementById("textDecrypt").value;
+                let key = document.getElementById("keyDecrypt").value;
+                let point = document.getElementById("pointDecrypt").value
+                const sendInfo = {"text": text, "point": point, "key": key};
+                fetch(url  + 'dec', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(sendInfo), // data can be `string` or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }})
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(jsonResponse) {
+                        // do something with jsonResponse
+                        console.log(jsonResponse)
+                        document.getElementById("cardDecryptionText").innerText = jsonResponse.output;
+                    });
+            }
+        }
+    </script>
 	</head>
 
 	<body class="is-preload">
@@ -73,11 +163,15 @@
         <div class="col-6 col-12-xsmall">
                             <h3>Encrypt</h3>
                             <div class="mb-3">
-                            <label for="inputTextEncrypt" class="form-label">Text</label>
-                            <input type="text" class="form-control" id="inputTextEncrypt"
+                            <label for="textEncrypt" class="form-label">Text</label>
+                            <input type="text" class="form-control" id="textEncrypt"
                                    aria-describedby="textHelp" style="text-transform:uppercase">
                             <div id="textHelp" class="form-text">Please introduce some text to encrypt.</div>
                         </div>
+                        <input type="text" class="form-control" id="keyEncrypt"
+                                   aria-describedby="textHelp" style="text-transform:uppercase" placeholder="Example: 3-13-5-9-2-10-25-1-16-17-7-6-2-21-18-17-3-15-11-11-1-7-22-17-8-23">
+                        <input type="text" class="form-control" id="pointEncrypt"
+                                   aria-describedby="textHelp" style="text-transform:uppercase" placeholder="Example: -2, 5">
                         <!-- <div class="mb-3">
                             <label for="inputKeyEncrypt" class="form-label">Key</label>
                             <input type="text" class="form-control" id="inputKeyEncrypt" aria-describedby="keyHelp"
@@ -86,40 +180,42 @@
                             </div> -->
                         <div class="text-center">
                             <button id="submitButtoncrypt" type="button"
-                                    class="button primary">Encrypt
+                                    class="button primary" onclick="handleCypher('encrypt')">Encrypt
                             </button>
                         </div>
                     </form>
                 </div>
-                <div id="encryptionResultsDiv" class="row mt-5" style="display: none;">
+                <div id="encryptionResultsDiv" class="row mt-5">
                     <hr>
                     <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
                     <p><b>Encryption: </b><span id="cardEncryptionText"></span></p>
-                    <p><b>Key Used: </b><span id="cardEncryptionKey"></span></p>
                 </div>      
                <div class="col-6 col-12-xsmall">
                 <h3>Decrypt</h3>
-                            <label for="inputTextDecrypt" class="form-label">Text</label>
-                            <input type="text" class="form-control" id="inputTextDecrypt"
+                            <label for="textDecrypt" class="form-label">Text</label>
+                            <input type="text" class="form-control" id="textDecrypt"
                                    aria-describedby="textHelp" style="text-transform:uppercase">
                             <div id="textHelp" class="form-text">Please introduce the text to decrypt.</div>
                              <div class="mb-3">
-                            <label for="inputKeyDecrypt" class="form-label">Key</label>
-                            <input type="text" class="form-control" id="inputKeyDecrypt" aria-describedby="keyHelp"
-                                   style="text-transform:uppercase">
+                              
+                            <label for="keyDecrypt" class="form-label">Key</label>
+                            <input type="text" class="form-control" id="keyDecrypt"
+                                   aria-describedby="textHelp" style="text-transform:uppercase" placeholder="Example: 3-13-5-9-2-10-25-1-16-17-7-6-2-21-18-17-3-15-11-11-1-7-22-17-8-23">
+                            <label for="pointDecrypt" class="form-label">Origin position</label>
+                            <input type="text" class="form-control" id="pointDecrypt"
+                                   aria-describedby="textHelp" style="text-transform:uppercase" placeholder="Example: -2, 5">
                             <div id="keyHelp" class="form-text">Please introduce the key.</div>
                         </div>
                         <div class="text-center">
 
                             <button id="submitButtonDecrypt" type="button primary"
-                                    class="button primary"">Decrypt
+                                    class="button primary" onclick="handleCypher('decrypt')">Decrypt
                             </button>
                    
-                <div id="decryptionResultsDiv" class="row mt-5" style="display: none;">
+                <div id="decryptionResultsDiv" class="row mt-5">
                     <hr>
                     <h4 class="card-subtitle mt-2 mb-4 text-center">Results</h4>
                     <p><b>Decryption: </b><span id="cardDecryptionText"></span></p>
-                    <p><b>Key Used: </b><span id="cardDecryptionKey"></span></p>
                     </div>
                 </div>
             </div>

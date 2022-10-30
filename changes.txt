@@ -10,3 +10,13 @@ Backend:
     - app.py changes on routes
     - hill and aes changes (the treatment of pictures has changed)
     - utils.py changed (file_parser)
+
+-- 29/10/2022 --
+Frontend:
+    - All cyphers SDES, TDES and Gamma working
+
+Backend:
+    - app.py changes on routes
+    - sdes, tdes and gamma changes
+    - utils.py changed (gamma_parser)
+    - added graph.txt and count.txt
